@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab-k8s-demo-__CI_ENVIRONMENT_SLUG__
+  namespace: ops
+  labels:
+    app: gitlab-k8s-demo
+    ref: __CI_ENVIRONMENT_SLUG__
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`__CI_ENVIRONMENT_SLUG__-gitlab-k8s-demo.ops.internal.moqi.ai`)
+      kind: Rule
+      services:
+        - name: gitlab-k8s-demo-__CI_ENVIRONMENT_SLUG__
+          port: 8000

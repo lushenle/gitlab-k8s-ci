@@ -1,4 +1,4 @@
-module git.moqi.ai/shenlel/gitlab-k8s-ci
+module git.k8s.idocker.io/demo/gitlab-k8s-ci
 
 go 1.16
 

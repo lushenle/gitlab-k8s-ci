@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gitlab-k8s-demo-__CI_ENVIRONMENT_SLUG__
-  namespace: ops
   labels:
     app: gitlab-k8s-demo
     ref: __CI_ENVIRONMENT_SLUG__
@@ -22,10 +21,10 @@ spec:
         track: stable
     spec:
       imagePullSecrets:
-        - name: moqi-harbor-shenlel
+        - name: moqi-registry
       containers:
       - name: app
-        image: harbor.internal.moqi.ai/gitdemo/gitlab-k8s:__VERSION__
+        image: registry.moqi.com.cn/gitdemo/gitlab-k8s:__VERSION__
         imagePullPolicy: Always
         ports:
         - name: http-metrics

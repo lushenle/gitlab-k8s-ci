@@ -1,5 +1,9 @@
+variables:
+  GOPROXY: "https://goproxy.cn,direct"
+  KUBECONFIG: /etc/deploy/config
+
 image:
-  name: harbor.internal.moqi.ai/itimages/golang:1.16.2-alpine
+  name: registry.moqi.com.cn/baseimage/golang:1.16.2-buster
   entrypoint: ["/bin/sh", "-c"]
 
 stages:
@@ -9,12 +13,12 @@ stages:
   - review
   - deploy
 
-test:
+test0:
   stage: test
   script:
     - make test
 
-test2:
+test1:
   stage: test
   script:
     - sleep 3
@@ -46,23 +50,23 @@ compile:
 image_build:
   stage: release
   image:
-    name: harbor.internal.moqi.ai/itimages/docker:20.10.6-dind
+    name: registry.moqi.com.cn/baseimage/docker:20.10.6-dind
     entrypoint: ["/bin/sh", "-c"]
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
+#  variables:
+#    DOCKER_HOST: tcp://localhost:2375
   services:
-    - harbor.internal.moqi.ai/itimages/docker:20.10.6-dind
+    - registry.moqi.com.cn/baseimage/docker:20.10.6-dind
   script:
     - docker info
-    - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
-    - docker build -t "${CI_REGISTRY_IMAGE}:latest" .
-    - docker tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
-    - test ! -z "${CI_COMMIT_TAG}" && docker push "${CI_REGISTRY_IMAGE}:latest"
-    - docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
+    - echo ${CI_REGISTRY_PASSWORD} | docker login -u "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+    - docker build -t "${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:latest" .
+    - docker tag "${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
+    - test ! -z "${CI_COMMIT_TAG}" && docker push "${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:latest"
+    - docker push "${CI_REGISTRY}/${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
 
 deploy_review:
   image:
-    name: harbor.internal.moqi.ai/tools/kubectl:v1.18.8
+    name: registry.moqi.com.cn/tools/kubectl:v1.21.0
     entrypoint: ["/bin/sh", "-c"]
   stage: review
   only:
@@ -71,12 +75,12 @@ deploy_review:
     - tags
   environment:
     name: review/$CI_BUILD_REF_NAME
-    url: http://$CI_ENVIRONMENT_SLUG-ops.internal.moqi.ai
+    url: http://$CI_ENVIRONMENT_SLUG-k8s.idocker.io
     on_stop: stop_review
-    kubernetes:
-      namespace: ops
   script:
-    - kubectl version
+    - mkdir -p /etc/deploy
+    - echo ${KUBE_CONFIG} | base64 -d > $KUBECONFIG
+    - kubectl version --short
     - cd manifests/
     - sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" deployment.yaml
     - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml ingress.yaml service.yaml
@@ -95,7 +99,7 @@ deploy_review:
 
 stop_review:
   image:
-    name: harbor.internal.moqi.ai/tools/kubectl:v1.18.8
+    name: registry.moqi.com.cn/tools/kubectl:v1.21.0
     entrypoint: ["/bin/sh", "-c"]
   stage: review
   variables:
@@ -109,28 +113,28 @@ stop_review:
   environment:
     name: review/$CI_BUILD_REF_NAME
     action: stop
-    kubernetes:
-      namespace: ops
   script:
-    - kubectl version
-    - kubectl delete ing -l ref=${CI_ENVIRONMENT_SLUG}
+    - mkdir -p /etc/deploy
+    - echo ${KUBE_CONFIG} | base64 -d > $KUBECONFIG
+    - kubectl version --short
+    - kubectl delete ingr -l ref=${CI_ENVIRONMENT_SLUG}
     - kubectl delete all -l ref=${CI_ENVIRONMENT_SLUG}
 
 deploy_live:
   image:
-    name: harbor.internal.moqi.ai/tools/kubectl:v1.18.8
+    name: registry.moqi.com.cn/tools/kubectl:v1.21.0
     entrypoint: ["/bin/sh", "-c"]
   stage: deploy
   environment:
     name: live
-    url: http://live-ops.internal.moqi.ai
-    kubernetes:
-      namespace: ops
+    url: http://live-k8s.idocker.io
   only:
     - tags
   when: manual
   script:
-    - kubectl version
+    - mkdir -p /etc/deploy
+    - echo ${KUBE_CONFIG} | base64 -d > $KUBECONFIG
+    - kubectl version --short
     - cd manifests/
     - sed -i "s~__CI_REGISTRY_IMAGE__~${CI_REGISTRY_IMAGE}~" deployment.yaml
     - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml ingress.yaml service.yaml

@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	ready = false
-	addr = flag.String("listen-address", ":8000", "The address to listen on for HTTP requests.")
-	appVersion = "v0.0.1"
+	ready       = false
+	addr        = flag.String("listen-address", ":8000", "The address to listen on for HTTP requests.")
+	appVersion  = "v0.0.1"
 	instanceNum int
 )
 

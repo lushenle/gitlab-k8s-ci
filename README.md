@@ -1,5 +1,11 @@
 gitlab-k8s-ci
 ---
+[![Build Status](https://travis-ci.com/lushenle/gitlab-k8s-ci.svg?branch=v1.0.0)](https://travis-ci.com/lushenle/gitlab-k8s-ci)
+[![GitHub issues](https://img.shields.io/github/issues/lushenle/gitlab-k8s-ci.svg)](https://github.com/lushenle/gitlab-k8s-ci/issues)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lushenle/gitlab-k8s-ci)](https://goreportcard.com/report/github.com/lushenle/gitlab-k8s-ci)
+[![Coverage Status](https://coveralls.io/repos/github/lushenle/gitlab-k8s-ci/badge.svg?branch=v1.0.0)](https://coveralls.io/github/lushenle/gitlab-k8s-ci?branch=master)
+[![GoDoc](https://godoc.org/github.com/lushenle/gitlab-k8s-ci?status.svg)](https://godoc.org/github.com/lushenle/gitlab-k8s-ci)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://blog.abelotech.com/mit-license/)
 
 These are the example files for presentation about GitLab + Kubernetes for Continuous Integration and Delivery. They are also partly used in my GitLab CI posts.
 

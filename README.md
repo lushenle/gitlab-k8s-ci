@@ -49,10 +49,6 @@ Other features also shown are:
 
 ## Using this repository
 
-> **NOTE**
->
-> Best is to follow the blog post [GitLab + Kubernetes: Using GitLab CI's Kubernetes Cluster feature](https://edenmal.moe/post/2019/GitLab-Kubernetes-Using-GitLab-CIs-Kubernetes-Cluster-feature/) as it contains more detailed instructions about using GitLab CI for Kubernetes.
-
 You have to replace the following addresses in all files:
 
 * `git.moqi.ai` with your GitLab address (e.g. `gitlab.example.com`).
